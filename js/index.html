@@ -1,0 +1,74 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+	  
+	  var Result = {
+	  count: 0,
+	  latency:0}
+	  
+	 
+      
+window.ws = new WebSocket("ws://"+ document.domain +":8001");
+	  var stats = {
+	  count: 0,
+	  latency:0}
+	  ws.onerror = function(e) {
+   console.log("error: "+ e);
+  };
+
+  ws.onopen = function() {
+	 
+ 
+    console.log('new ws opened,send messege');
+	setInterval(function(){ws.send(new Array(10).join('xx'));
+		var now = Date.now();
+		 
+		 
+  ws.onmessage = function(messege) {
+	
+		stats.count++;
+		 var arrived = Date.now();
+		stats.latency = arrived - now;
+		
+		console.log('latency : ' + stats.latency + 'ms');
+	
+		
+	Result.latency = stats.latency;
+Result.count = stats.count;
+function drawChart() {
+	  
+        var data = google.visualization.arrayToDataTable([ ['totalmessage', 'Latency'],[Result.count,Result.latency]]);
+
+        var options = {
+          title: 'Latency vs Bandwidth',
+          hAxis: {title: 'total message', minValue: 0, maxValue: 100},
+          vAxis: {title: 'Latency', minValue: 0, maxValue: 20},
+          legend: 'none'
+        };
+
+        var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+      }
+
+};   
+
+
+console.log('counter '+ stats.count);
+
+	},5000); 
+  ws.onclose = function() {
+	console.log('closed');
+    };
+
+ };
+ 
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>

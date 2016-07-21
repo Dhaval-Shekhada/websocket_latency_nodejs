@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script type="text/javascript">
+window.onload = function () {
+  var Result = {
+	  count: 0,
+	  latency:0}
+window.ws = new WebSocket("ws://"+ document.domain +":8001");
+	  var stats = {
+	  count: 0,
+	  latency:0}
+	  ws.onerror = function(e) {
+   console.log("error: "+ e);
+  };
+
+  ws.onopen = function() {
+	 
+ 
+    console.log('new ws opened,send messege');
+	setInterval(function(){ws.send(new Array(10).join('xx'));
+		var now = Date.now();
+		 
+		 
+  ws.onmessage = function(messege) {
+	
+		stats.count++;
+		 var arrived = Date.now();
+		stats.latency = arrived - now;
+		
+		console.log('latency : ' + stats.latency + 'ms');
+	
+		
+	Result.latency = stats.latency;
+Result.count = stats.count;
+
+  
+    var chart = new CanvasJS.Chart("chartContainer",
+    {
+     title:{
+      text: "latency vs bandwidth"
+    },
+
+    data: [
+    {
+     type: "scatter",
+     dataPoints: [{x:Result.count,y: Result.latency}]
+	}
+   ]
+ });
+
+chart.render();
+
+};   
+
+
+console.log('counter '+ stats.count);
+
+	},500); 
+  ws.onclose = function() {
+	console.log('closed');
+    };
+
+ };
+ }
+</script>
+<script type="text/javascript" src="/js/canvasjs.min.js"></script>
+</head>
+<body>
+  <div id="chartContainer" style="height: 300px; width: 100%;">
+  </div>
+</body>
+</html>

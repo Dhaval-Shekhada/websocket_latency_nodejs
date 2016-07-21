@@ -1,0 +1,26 @@
+{
+  "name": "websocketmemoryleak",
+  "version": "1.0.0",
+  "description": "",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "ds",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^1.5.2",
+    "csv-stringify": "^1.0.2",
+    "express": "^4.13.2",
+    "fast-csv": "^1.0.0",
+    "fs": "0.0.2",
+    "http2": "^3.3.2",
+    "https": "^1.0.0",
+    "json2csv": "^3.2.0",
+    "mkdirp": "^0.5.1",
+    "moment": "^2.11.2",
+    "util": "^0.10.3",
+    "ws": "^0.8.1"
+  }
+}

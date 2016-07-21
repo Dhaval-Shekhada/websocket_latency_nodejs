@@ -1,0 +1,129 @@
+<html>
+  <head>
+  
+    <script type="text/javascript" src="/js/loader.js"></script>
+	  <script type="text/javascript" src="/js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript">
+    
+	
+var Dataobject = [];
+var total_lat= 0; var avg= 0;
+var stats ={count:0,latency:0,avglatency:0};
+google.charts.load('current', {packages: ['corechart', 'line']});
+function drawCurveTypes() {
+					var data = google.visualization.arrayToDataTable(datatable);
+					var options = {
+							hAxis: {
+							  title: 'number of pings'
+							},
+							vAxis: {
+							  title: 'latency in miliseconds'
+							},
+							series: {
+							  1: {curveType: 'function'}
+							}
+						  };
+
+					var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+						  chart.draw(data, options);
+				}
+function addentryToData(con,lat){
+ Dataobject.push({count:con,latency:lat});
+}
+function tableforData(obj){
+var table = [0,0];
+for (var i =0; i<obj.length;i++){
+var col0 = obj[i].count;
+var col1 = obj[i].latency;
+table[0] = col0;
+table[1] = col1;
+}
+
+return table;
+}
+
+var datatable = [['number of ping','latency in miliseconds']];
+
+var size = function(str) {
+  var b = str.match(/[^\x00-\xff]/g);
+  return (str.length + (!b ? 0: b.length)); 
+}
+
+	
+	
+var metrics = function (){
+	this.timing = Object.create(null);
+	
+}
+
+metrics.prototype.start = function(){
+	this.timing.start = performance.now();
+	return this;
+}
+
+metrics.prototype.stop = function(){
+	this.timing.stop = performance.now();
+	
+	return this;
+}
+
+metrics.prototype.latency = function(){
+	this.timing.latency = this.timing.stop - this.timing.start ;
+	return this.timing.latency ;
+}
+window.ws = new WebSocket("ws://"+ document.domain +":8001");
+	  var met = new metrics();	
+
+  ws.onerror = function(e) {
+	console.log("error: "+ e);
+		};
+
+  ws.onopen = function() {
+	console.log('new ws opened,send messege');
+	setInterval(function(){
+		var buffer = new ArrayBuffer(100);  //new Array(1000).join('xx')
+		if (ws.bufferedAmount == 0)
+		ws.send(buffer);
+		met.start();
+		 
+			ws.onmessage = function(message) {
+				//stats.bytes = size(message.data);
+					stats.count++;
+					
+					met.stop();
+					stats.latency = met.latency();
+					 total_lat+= stats.latency;
+						avg = total_lat/stats.count;
+
+                   $('#avglatency').text(parseFloat(average_lat = avg).toFixed(2));
+					
+					addentryToData(stats.count,stats.latency);
+					//console.log('latency : ' + stats.latency + 'ms');
+					datatable.push(tableforData(Dataobject));
+				google.charts.setOnLoadCallback(drawCurveTypes);
+					
+			};   
+	},3000); 
+	
+		
+		  ws.onclose = function() {
+			console.log('closed');
+			};
+
+ };
+ 
+    </script>
+  </head>
+  <body>
+     
+	 <div  style="float:right;
+    width: 10px;
+    height: 20px;
+    margin-right: 250px;
+	margin-top:150px;">
+	<label>average_latency</label>
+	<label id="avglatency"> </label> </div>
+    <div id="chart_div" style="float:left; width: 800px; height: 400px;position:absolute; margin-top:0px;"></div>
+	  
+  </body>
+</html>
